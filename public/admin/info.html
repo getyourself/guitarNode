@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{ font-size: 14px;}
+        table{ color: #333; width: 100%;
+            background: white;
+            padding:20px 20px;
+        }
+        table td{padding:10px 5px; line-height: 35px}
+        table input,table textarea{
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 2px;
+            border:1px solid #ccc;
+            outline: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        table input:focus,table textarea:focus{
+            border:1px solid  #48b6f2;
+            box-shadow: 0 0 0 3px rgba(72, 182, 242, 0.34);
+        }
+        table input{
+            height: 35px;
+            line-height: normal;
+        }
+        table textarea{
+            height:150px;
+        }
+        .logo_img{
+            float: left;
+            margin-right: 16px;
+            padding: 5px;
+            background: white;
+            border:1px solid #ccc;
+            border-radius: 3px;
+        }
+        .file_btn{
+            display: inline-block;
+            padding:0px 10px;
+            background: #4ed749;
+            color:white;
+            border-radius: 3px;
+            border:1px solid #399c36;
+            font-size: 12px;
+        }
+        .sub{
+            display: inline-block;
+            padding:5px 20px;
+            background: #48b6f2;
+            color:white;
+            border-radius: 3px;
+            border:1px solid #4b8abf;
+        }
+        .sub:hover{
+            background: #398dbd;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+如果表单有文件上传 必须写：
+1.enctype="multipart/form-data"
+multipart/form-data 是专门用来传文件的 可以传二进制文件数据
+2.文件上传 必须使用post方法，目前这种请求的方法是最通用的文件上传
+3.action="/setInfo" 表示设置表单 提交数据的地址，
+  这个/setInfo需要我们在后端写这个接收的地址
+-->
+<form enctype="multipart/form-data" method="post" action="/setInfo"  >
+    <!--table表示表格
+        tr 表示行 里面是放列的
+        td 表示列 里面是放内容的
+    -->
+    <table border="0">
+        <tr><td width="70">网站标题</td><td><input type="text" name="title"></td></tr>
+        <tr><td>网站关键字</td><td><input type="text" name="keywords"></td></tr>
+        <tr><td valign="top">网站描述</td><td><textarea name="description"></textarea></td></tr>
+        <tr><td valign="top">Logo图片</td><td>
+            <label>
+                <!--可以把图片的地址用一个 标签存起来
+                  我们可以使用 隐藏并携带数据的标签 这种标签叫做隐藏域
+                  就是在页面中不显示 但是会携带数据
+                -->
+                <input type="hidden" name="old_img">
+                <img src="" width="100" class="logo_img">
+                <!-- onchange 当input标签的value值发生改变时候 就会触发该事件-->
+                <input type="file" name="logo"  onchange="abc()" style="display: none">
+                <span class="file_btn">修改图片</span>
+                <script>
+                    function abc() {
+                        //alert("input的value发生了改变")
+                        document.querySelector(".file_btn").innerText="你已经选了图片！"
+                    }
+                </script>
+            </label>
+        </td></tr>
+        <tr><td>备案号</td><td><input type="text" name="icp"> </td></tr>
+        <tr><td></td><td><button class="sub">提交</button></td></tr>
+    </table>
+</form>
+
+<script>
+    //后端返回的json数据一般是 字符串类型的json
+    //比如：{"a":1,"b":2}  这种属性带双引号 json就是字符串的json
+
+    //如果要使用 字符串的json，一般都需要转成json对象
+    //比如：{a:1,b:2} 这种属性不带双引号的 json 就是对象的json
+
+    //把json字符串 转成 json对象： 使用JSON.parse(写后台接收json字符串)
+    //console.log(JSON.parse('{"Id":1,"标题":2}'));
+    //输出对象 {Id: 1, 标题: 2}
+
+    //把json对象 转成 json字符串：
+    //console.log(JSON.stringify({Id:1,标题:2}));
+    //输出字符串 {"Id":1,"标题":2}
+    var ajax=new XMLHttpRequest;
+    ajax.open("get","/getInfo",false);
+    ajax.send();
+    var data=JSON.parse(ajax.responseText);
+    document.querySelector( '[name="title"]').value=data.标题;
+    document.querySelector( '[name="keywords"]').value=data.关键字;
+    document.querySelector( '[name="description"]').value=data.描述;
+    document.querySelector( '.logo_img').src=data.Logo.replace("uploads","");
+    document.querySelector( '[name="icp"]').value=data.备案号;
+    document.querySelector('[name="old_img"]').value=data.Logo;
+</script>
+</body>
+</html>
